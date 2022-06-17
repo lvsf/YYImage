@@ -295,8 +295,8 @@ typedef NS_ENUM(NSUInteger, YYAnimatedImageType) {
 }
 
 - (void)setHighlighted:(BOOL)highlighted {
-    [super setHighlighted:highlighted];
     if (_updateForHighlighted) {
+        [super setHighlighted:highlighted];
         if (_link) [self resetAnimated];
         [self imageChanged];
     }
