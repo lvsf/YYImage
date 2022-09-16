@@ -87,6 +87,7 @@ static CGFloat _NSStringPathScale(NSString *string) {
 @implementation YYImage {
     YYImageDecoder *_decoder;
     NSArray *_preloadedFrames;
+    NSMutableDictionary *_cacheFrames;
     dispatch_semaphore_t _preloadedLock;
     NSUInteger _bytesPerFrame;
 }
@@ -233,10 +234,18 @@ static CGFloat _NSStringPathScale(NSString *string) {
 - (UIImage *)animatedImageFrameAtIndex:(NSUInteger)index {
     if (index >= _decoder.frameCount) return nil;
     dispatch_semaphore_wait(_preloadedLock, DISPATCH_TIME_FOREVER);
-    UIImage *image = _preloadedFrames[index];
+    UIImage *image = _cacheFrames[@(index).stringValue];
+    if (image == nil) {
+        image = _preloadedFrames[index];
+        [self _cacheImage:image forIndex:index];
+    }
     dispatch_semaphore_signal(_preloadedLock);
-    if (image) return image == (id)[NSNull null] ? nil : image;
-    return [_decoder frameAtIndex:index decodeForDisplay:YES].image;
+    if (image) {
+        return image == (id)[NSNull null] ? nil : image;
+    }
+    image = [_decoder frameAtIndex:index decodeForDisplay:YES].image;
+    [self _cacheImage:image forIndex:index];
+    return image;
 }
 
 - (NSTimeInterval)animatedImageDurationAtIndex:(NSUInteger)index {
@@ -253,6 +262,20 @@ static CGFloat _NSStringPathScale(NSString *string) {
      */
     if (duration < 0.011f) return 0.100f;
     return duration;
+}
+
+#pragma mark - private
+- (void)_cacheImage:(UIImage *)image forIndex:(NSInteger)index {
+    if (!_cacheUsedImageFrame) {
+        return;
+    }
+    if (image == (id)[NSNull null]) {
+        return;
+    }
+    if (_cacheFrames == nil) {
+        _cacheFrames = NSMutableDictionary.new;
+    }
+    _cacheFrames[@(index).stringValue] = image;
 }
 
 @end

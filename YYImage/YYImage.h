@@ -87,6 +87,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) BOOL preloadAllAnimatedImageFrames;
 
+@property (nonatomic) BOOL cacheUsedImageFrame;
+
 @end
 
 NS_ASSUME_NONNULL_END
