@@ -375,6 +375,7 @@ typedef NS_ENUM(NSUInteger, YYAnimatedImageType) {
         [self calcMaxBufferCount];
     }
     [self setNeedsDisplay];
+    [self.layer setNeedsDisplay];
     [self didMoved];
 }
 
@@ -529,12 +530,12 @@ typedef NS_ENUM(NSUInteger, YYAnimatedImageType) {
 
 - (void)displayLayer:(CALayer *)layer {
     UIImage *currentFrame = _curFrame;
-    if (!currentFrame) {
-    currentFrame = self.image;
+    if (currentFrame == nil) {
+        currentFrame = self.image;
     }
     if (currentFrame) {
-    layer.contentsScale = currentFrame.scale;
-    layer.contents = (__bridge id)currentFrame.CGImage;
+        layer.contentsScale = currentFrame.scale;
+        layer.contents = (__bridge id)currentFrame.CGImage;
     }
 }
 
